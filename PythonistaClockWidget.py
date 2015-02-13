@@ -77,21 +77,19 @@ svgInHtml='''
   ]]></script>
 </svg>
 '''
-announce1 = "The current local time"
-announce2 =  "is"
+#announce1 = "The current local time"
+#announce2 =  "is"
+fmt = 'The current local time in {} is {} {} {} {}.'  # ccc: use str.format() for complex concatenation
 
-numbersZeroToTwenty = 'zero,one,two,three,four,five,six,seven,eight,nine,ten,eleven,twelve,thirteen,fourteen,fifteen,sixteen,seventeen,eighteen,nineteen,twenty'.split(',')
+numbersZeroToTwenty = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split()  # ccc: spaced strings are easier to read, wrap better, and require 3 less chars
 
-#thirty = "thirty"
-#forty = "forty"
-#fifty = "fifty"
 tens_dict = { 2 : 'twenty',
               3 : 'thirty',
               4 : 'forty',
               5 : 'fifty' }
-am = "A.M"
-pm = "P.M"
-ampm = ""
+am = "A.M."
+pm = "P.M."
+#ampm = ""
 oclock = "oclock"
 # Turn off tracing when not required for simple debug/trace
 traceFlag = True
@@ -128,33 +126,33 @@ class ClockGadget:
 		webview.load_html(svgInHtml)
 #==============================================================================
 	def speaknowButtonTapped(self, sender):
-		if sender.name == 'speakTimeButton':
-			# Get the say seconds preference
-			isSaySeconds = sender.superview['speakSecondsSwitch'].value
-			if traceFlag: print 'isSaySeconds current value now->>' + str(isSaySeconds)
+		assert sender.name == 'speakTimeButton', 'Invalid button name: ' + sender.name
+		# Get the say seconds preference
+		isSaySeconds = sender.superview['speakSecondsSwitch'].value
+		if traceFlag: print 'isSaySeconds current value now->>' + str(isSaySeconds)
 			
-			timeMessage = self.getCurrentLocalTimeAnnouncement(isSaySeconds)
-			if traceFlag: print 'Time message to announce ->>' + timeMessage
-			speech.say(timeMessage,locale, speechDelay)
+		timeMessage = self.getCurrentLocalTimeAnnouncement(isSaySeconds)
+		if traceFlag: print 'Time message to announce ->>' + timeMessage
+		speech.say(timeMessage,locale, speechDelay)
 #=============================================================================
 	def switchTapped(self,sender):
-		if sender.name == 'speakSecondsSwitch':
-			if traceFlag: print "speakSecondsSwitch tapped...current value is ->>" + str(sender.value)
+		assert sender.name == 'speakSecondsSwitch', 'Invalid switch name: ' + sender.name
+		if traceFlag: print "speakSecondsSwitch tapped...current value is ->>" + str(sender.value)
 #==============================================================================
 	def createCurrentLocationString(self):
 		import location
 		location.start_updates()
 		coordinates = location.get_location()
-		addressDictionaries = location.reverse_geocode(coordinates)
-		mycity = addressDictionaries[0]['City']
-		mycountry = addressDictionaries[0]['Country']
+		location.stop_updates()  # ccc: turn off updates asap to save battery
+		addressDict = location.reverse_geocode(coordinates)[0]  # ccc: grab just the first one
+		mycity = addressDict['City']
+		mycountry = addressDict['Country']
 		
 		# if we can't get city and country not much point to continue
-		if mycountry == None or mycity == None:
+		if not mycountry or not mycity:  # ccc: avoid comparing directly to None, False, '', [], etc.
 			return ""
 		
-		locationString = "in " + mycity + " " + mycountry
-		location.stop_updates()
+		locationString = 'in {} {}'.format(mycity, mycountry)  # ccc: use str.format() to join strings
 		
 		if traceFlag: print 'Returning location string ->>' + locationString
 		return locationString
@@ -178,35 +176,32 @@ class ClockGadget:
 		
 		# If it is right on the hour, add "o'clock"; if not, bad English grammar to use it in this context.
 		if nowMinutes == 0:
-			hourString = hourString + " " + oclock
+			hourString += " " + oclock  # ccc: use +=
 
 		# If minutes less than 10 US english adds ' oh'begore saying minutes, eg. 'Two oh one'for 2:01, but make sure not to append 'owe' if its right on the hour. That is, when 'oclock' never 'owe' preventing 'nine oclock owe p.m.' phrases.
-		if nowMinutes > 0 and nowMinutes < 10:
-			minuteString = "owe " + minuteString # Use 'owe' which is real word not to confuse speech synth.
+		if 0 < nowMinutes < 10:  # ccc: slight optimization if variable appears only once
+			minuteString = "oh " + minuteString # Use 'oh' which is real word not to confuse speech synth.
 
 		# Not using 24 hour system but instead a 12 hour one which uses a.m and p.m
 		ampm = am if nowHour < 12 else pm
 
-		announcement = ""
-		seconds = "seconds"
-		
 		if isSaySeconds:
 			# English grammar, if seconds is 1, agrrement rules say use singular.
-			if nowSeconds == 1: seconds = "second"
-			
-			announcement =  announce1 + " " + self.locationString + " " +announce2 + " " + hourString + " " + minuteString + " " + ampm + " " + str(nowSeconds) + " " + seconds + " "
+			seconds = "second" if nowSeconds == 1 else "seconds"
+			secs_str = '{} {}'.format(nowSeconds, seconds)
 		else:
-			announcement =  announce1 + " " + self.locationString + " " + announce2 + " "  + hourString + " " + minuteString + " " + ampm
+			secs_str = ''
+			
+		announcement = fmt.format(self.locationString, hourString, minuteString, ampm, secs_str)  # ccc: use str.format() for complex concatenation
 		if traceFlag: print announcement
 		return announcement
 #==============================================================================
 	def getCurrentHourString(self, nowHour):
 		if traceFlag: print "nowHour parameter to function ->>" + str(nowHour)
-		hourString = ""
-	
 		assert -1 < nowHour < 24, 'Error: Invalid hour {}.'.format(nowHour)
+		hourString = numbersZeroToTwenty[nowHour % 12 or 12]
 		if traceFlag: print "Hour string to return ->>" + hourString
-		return numbersZeroToTwenty[nowHour % 12 or 12]
+		return hourString
 #==============================================================================
         def getCurrentMinutesString(self, nowMinutes):
                 assert -1 < nowMinutes < 60, 'error: invalid minutes {}.'.format(nowMinutes)
