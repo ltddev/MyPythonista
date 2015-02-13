@@ -82,9 +82,13 @@ announce2 =  "is"
 
 numbersZeroToTwenty = 'zero,one,two,three,four,five,six,seven,eight,nine,ten,eleven,twelve,thirteen,fourteen,fifteen,sixteen,seventeen,eighteen,nineteen,twenty'.split(',')
 
-thirty = "thirty"
-forty = "forty"
-fifty = "fifty"
+#thirty = "thirty"
+#forty = "forty"
+#fifty = "fifty"
+tens_dict = { 2 : 'twenty',
+              3 : 'thirty',
+              4 : 'forty',
+              5 : 'fifty' }
 am = "A.M"
 pm = "P.M"
 ampm = ""
@@ -204,110 +208,18 @@ class ClockGadget:
 		if traceFlag: print "Hour string to return ->>" + hourString
 		return numbersZeroToTwenty[nowHour % 12 or 12]
 #==============================================================================
-	def getCurrentMinutesString(self, nowMinutes):
-		minuteString = ""
-
-		# Handles minutes between 1 and 20
-		if nowMinutes > 0 and nowMinutes < 21:
-			minuteString = numbersZeroToTwenty[nowMinutes]
-
-		# Handles minutes between 21 and 29
-		if nowMinutes > 20 and nowMinutes < 30:
-			if nowMinutes == 21:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[1]
-			elif nowMinutes == 22:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[2]
-			elif nowMinutes == 23:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[3]
-			elif nowMinutes == 24:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[4]
-			elif nowMinutes == 25:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[5]
-			elif nowMinutes == 26:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[6]
-			elif nowMinutes == 27:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersZeroToTwenty[7]
-			elif nowMinutes == 28:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[8]
-			elif nowMinutes == 29:
-				minuteString = numbersZeroToTwenty[20] + " " + numbersOneToTwenty[9]
-
-		# Handle 30 minutes
-		if nowMinutes == 30:
-			minuteString = thirty
-
-		# Handles minutes between 31 and 39
-		if nowMinutes > 30 and nowMinutes < 40:
-			if nowMinutes == 31:
-				minuteString = thirty + " " + numbersZeroToTwenty[1]
-			elif nowMinutes == 32:
-				minuteString = thirty + " " + numbersZeroToTwenty[2]
-			elif nowMinutes == 33:
-				minuteString = thirty + " " + numbersZeroToTwenty[3]
-			elif nowMinutes == 34:
-				minuteString = thirty + " " + numbersZeroToTwenty[4]
-			elif nowMinutes == 35:
-				minuteString = thirty + " " + numbersZeroToTwenty[5]
-			elif nowMinutes == 36:
-				minuteString = thirty + " " + numbersZeroToTwenty[6]
-			elif nowMinutes == 37:
-				minuteString = thirty + " " + numbersZeroToTwenty[7]
-			elif nowMinutes == 38:
-				minuteString = thirty + " " + numbersZeroToTwenty[8]
-			elif nowMinutes == 39:
-				minuteString = thirty + " " + numbersZeroToTwenty[9]
-
-		# Handles 40 minutes
-		if nowMinutes == 40:
-			minuteString = forty
-
-		if nowMinutes > 40 and nowMinutes < 50:
-			if nowMinutes == 41:
-				minuteString = forty + " " + numbersZeroToTwenty[1]
-			elif nowMinutes == 42:
-				minuteString = forty + " " + numbersZeroToTwenty[2]
-			elif nowMinutes == 43:
-				minuteString = forty + " " + numbersZeroToTwenty[3]
-			elif nowMinutes == 44:
-				minuteString = forty + " " + numbersZeroToTwenty[4]
-			elif nowMinutes == 45:
-				minuteString = forty + " " + numbersZeroToTwenty[5]
-			elif nowMinutes == 46:
-				minuteString = forty + " " + numbersZeroToTwenty[6]
-			elif nowMinutes == 47:
-				minuteString = forty + " " + numbersZeroToTwenty[7]
-			elif nowMinutes == 48:
-				minuteString = forty + " " + numbersZeroToTwenty[8]
-			elif nowMinutes == 49:
-				minuteString = forty + " " + numbersZeroToTwenty[9]
-
-		# Handle 50 minutes
-		if nowMinutes == 50:
-			minuteString = fifty
-
-		# Handle minutes between 51 and 59
-		if nowMinutes > 50 and nowMinutes < 60:
-			if nowMinutes == 51:
-				minuteString = fifty + " " + numbersZeroToTwenty[1]
-			elif nowMinutes == 52:
-				minuteString = fifty + " " + numbersZeroToTwenty[2]
-			elif nowMinutes == 53:
-				minuteString = fifty + " " + numbersZeroToTwenty[3]
-			elif nowMinutes == 54:
-				minuteString = fifty + " " + numbersZeroToTwenty[4]
-			elif nowMinutes == 55:
-				minuteString = fifty + " " + numbersZeroToTwenty[5]
-			elif nowMinutes == 56:
-				minuteString = fifty + " " + numbersZeroToTwenty[6]
-			elif nowMinutes == 57:
-				minuteString = fifty + " " + numbersZeroToTwenty[7]
-			elif nowMinutes == 58:
-				minuteString = fifty + " " + numbersZeroToTwenty[8]
-			elif nowMinutes == 59:
-				minuteString = fifty + " " + numbersZeroToTwenty[9]
-
-		if traceFlag: print "Minute string to return ->>" + minuteString
-		return minuteString
+        def getCurrentMinutesString(self, nowMinutes):
+                assert -1 < nowMinutes < 60, 'error: invalid minutes {}.'.format(nowMinutes)
+                if nowMinutes == 0:  # special case for zero
+                        return ''
+                if nowMinutes < 21:
+                        return numbersZeroToTwenty[nowMinutes]
+                tens = nowMinutes / 10
+                ones = nowMinutes % 10
+                if ones:  # special case for zero
+                        return '{} {}'.format(tens_dict[tens], numbersZeroToTwenty[ones])
+                else:
+                        return tens_dict[tens]
 #==============================================================================
 if traceFlag: console.clear()
 ClockGadget()
