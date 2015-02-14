@@ -9,7 +9,6 @@ It also has the ability to speak the time and location on demand.
 The SVG clock code should be attributed to its author, but I cannot determine the author. Instead, the particular location I found this clock via a google search for "svg analog clock in Python with smooth second hand" is:
 
 http://codegolf.stackexchange.com/questions/20646/create-an-analogue-clock
-http://codegolf.stackexchange.com/a/20746
 
 I was working on making this a "talking clock" which was my original intention. I had controls to choose whether or not to announce the time, if so the duration between announcements and so on but I simply could not get a background thread going to do what I wanted to. Any suggestions on how to add a background task to poll for current time and then do something about it on a given schedule - in the Pythonista environment, and in Python -- would be helpful to finish this goal.
 
