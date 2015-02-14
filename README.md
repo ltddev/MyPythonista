@@ -11,9 +11,6 @@ The SVG clock code should be attributed to its author, but I cannot determine th
 http://codegolf.stackexchange.com/questions/20646/create-an-analogue-clock
 http://codegolf.stackexchange.com/a/20746
 
-Live example here:
-http://ruletheweb.co.uk/clock.svg
-
 I was working on making this a "talking clock" which was my original intention. I had controls to choose whether or not to announce the time, if so the duration between announcements and so on but I simply could not get a background thread going to do what I wanted to. Any suggestions on how to add a background task to poll for current time and then do something about it on a given schedule - in the Pythonista environment, and in Python -- would be helpful to finish this goal.
 
 See: http://omz-forums.appspot.com/pythonista/post/6162554669760512
