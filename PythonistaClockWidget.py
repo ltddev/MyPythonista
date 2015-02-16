@@ -77,11 +77,11 @@ svgInHtml='''
   ]]></script>
 </svg>
 '''
-#announce1 = "The current local time"
-#announce2 =  "is"
+
 fmt = 'The current local time in {} is {} {} {} {}.'  # ccc: use str.format() for complex concatenation
 
-numbersZeroToTwenty = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split()  # ccc: spaced strings are easier to read, wrap better, and require 3 less chars
+numbersZeroToTwenty = '''zero one two three four five six seven eight nine ten eleven
+    twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'''.split()
 
 tens_dict = { 2 : 'twenty',
               3 : 'thirty',
@@ -89,13 +89,13 @@ tens_dict = { 2 : 'twenty',
               5 : 'fifty' }
 am = "A.M."
 pm = "P.M."
-#ampm = ""
 oclock = "oclock"
+
 # Turn off tracing when not required for simple debug/trace
 traceFlag = True
 
 speechDelay = 0.05
-locale = "en-US"
+locale = 'en-US'
 #==============================================================================
 class ClockGadget:
 	def __init__(self):
@@ -143,17 +143,15 @@ class ClockGadget:
 		import location
 		location.start_updates()
 		coordinates = location.get_location()
-		location.stop_updates()  # ccc: turn off updates asap to save battery
-		addressDict = location.reverse_geocode(coordinates)[0]  # ccc: grab just the first one
-		mycity = addressDict['City']
-		mycountry = addressDict['Country']
-		
-		# if we can't get city and country not much point to continue
-		if not mycountry or not mycity:  # ccc: avoid comparing directly to None, False, '', [], etc.
-			return ""
-		
-		locationString = 'in {} {}'.format(mycity, mycountry)  # ccc: use str.format() to join strings
-		
+		location.stop_updates()
+
+		try:
+			addressDict = location.reverse_geocode(coordinates)[0]  # grab the first loc
+			locationString = 'in {City} {Country}'.format(**addressDict)
+		except (TypeError, KeyError) as e:
+			if traceFlag: print('Error in createCurrentLocationString(): {}'.format(e))
+			locationString = ''
+
 		if traceFlag: print 'Returning location string ->>' + locationString
 		return locationString
 #==============================================================================
