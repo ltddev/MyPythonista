@@ -12,7 +12,7 @@ def get_city_and_country():
         addressDict = location.reverse_geocode(loc)[0]  # grab the first loc
         return 'in {City} {Country}'.format(**addressDict)
     except (TypeError, KeyError) as e:
-            print('Error in createCurrentLocationString(): {}'.format(e))
+        print('Error in createCurrentLocationString(): {}'.format(e))
     return ''
             
 def get_city_country_and_time(in_time=None):
